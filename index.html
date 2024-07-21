@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Mi Aplicación Electron</title>
+    <style>
+        /* Estilos generales */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            background-color: #f0f0f0;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        /* Contenedor principal */
+        .container {
+            width: 100%;
+            max-width: 800px;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        /* Estilo de los botones */
+        .button {
+            border: none;
+            padding: 10px 20px;
+            margin: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+            color: #fff;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        .button-primary {
+            background-color: #007bff;
+        }
+
+        .button-primary:hover {
+            background-color: #0056b3;
+        }
+
+        .button-primary:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+
+        .button-secondary {
+            background-color: #6c757d;
+        }
+
+        .button-secondary:hover {
+            background-color: #5a6268;
+        }
+
+        #node-status {
+            font-size: 18px;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+
+        .status-installed {
+            color: green;
+        }
+
+        .status-not-installed {
+            color: red;
+        }
+
+        #download-status {
+            font-size: 16px;
+            margin: 10px;
+        }
+
+        /* Estilo del botón de cerrar */
+        #close-app {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            border: none;
+            background: #dc3545;
+            color: #fff;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        #close-app:hover {
+            background: #c82333;
+        }
+    </style>
+</head>
+
+<body>
+    <button id="close-app">✖</button>
+    <div class="container">
+        <h2 id="node-status">Verificando Node.js...</h2>
+        <button id="install-node" class="button button-primary" disabled>Instalar Node</button>
+        <button id="download-repo" class="button button-primary">Descargar Repositorio</button>
+        <button onclick="alert('Botón 2')" class="button button-secondary">Botón 2</button>
+        <button onclick="alert('Botón 3')" class="button button-secondary">Botón 3</button>
+        <p id="download-status"></p> <!-- Mensaje de estado de descarga -->
+    </div>
+
+    <script>
+        window.electron.receiveNodeStatus((event, data) => {
+            const nodeStatusLabel = document.getElementById('node-status');
+            const installButton = document.getElementById('install-node');
+            if (data.status === 'installed') {
+                nodeStatusLabel.textContent = `Node está instalado (Versión: ${data.version})`;
+                nodeStatusLabel.className = 'status-installed';
+                installButton.disabled = true; // Bloquea el botón
+            } else {
+                nodeStatusLabel.textContent = 'Node no está instalado';
+                nodeStatusLabel.className = 'status-not-installed';
+                installButton.disabled = false; // Habilita el botón
+            }
+        });
+
+        document.getElementById('install-node').addEventListener('click', () => {
+            window.electron.installNode();
+        });
+
+        document.getElementById('download-repo').addEventListener('click', () => {
+            window.electron.downloadRepo();
+        });
+
+        document.getElementById('close-app').addEventListener('click', () => {
+            window.electron.closeApp();
+        });
+
+        window.electron.receiveDownloadStatus((event, data) => {
+            const downloadStatus = document.getElementById('download-status');
+            if (data.status === 'success') {
+                downloadStatus.textContent = data.message;
+                downloadStatus.style.color = 'green';
+            } else if (data.status === 'error') {
+                downloadStatus.textContent = `Error: ${data.message}`;
+                downloadStatus.style.color = 'red';
+            } else if (data.status === 'progress') {
+                downloadStatus.textContent = data.message;
+            }
+        });
+    </script>
+</body>
+
+</html>
