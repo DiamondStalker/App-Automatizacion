@@ -1,19 +1,20 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 const exec = require('child_process').exec;
-const os = require('os'); // Para obtener la ruta de la carpeta de Documentos
+const os = require('os');
+const fs = require('fs'); // Para verificar si la carpeta existe
 
 function createWindow() {
     const mainWindow = new BrowserWindow({
-        width: 800,
+        width: 420,
         height: 600,
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
             contextIsolation: true,
-            nodeIntegration: false
+            enableRemoteModule: false,
+            nodeIntegration: false,
         },
-        autoHideMenuBar: true, // Oculta la barra de menú
-        titleBarStyle: 'hidden' // Oculta la barra de título en macOS, para Windows puedes omitir esta línea
+        frame: false, // Desactiva la barra de título y los bordes del sistema
     });
 
     mainWindow.loadFile('index.html');
@@ -31,15 +32,30 @@ function createWindow() {
         }
     });
 
+    // Verificar si el repositorio ya está descargado
+    const documentsPath = path.join(os.homedir(), 'Documents');
+    const repoName = 'Automatizacion'; // Nombre de la carpeta del repositorio
+    const clonePath = path.join(documentsPath, repoName);
+
+    fs.access(clonePath, fs.constants.F_OK, (err) => {
+        if (err) {
+            // Carpeta no existe
+            mainWindow.webContents.send('repo-status', { status: 'not-exists' });
+        } else {
+            // Carpeta existe
+            mainWindow.webContents.send('repo-status', { status: 'exists' });
+        }
+    });
+
     // Escuchar el evento de instalación de Node.js
     ipcMain.on('install-node', () => {
         console.log('Iniciando instalación de Node.js...');
         exec(`
-      echo Node.js no está instalado. Instalando...
-      powershell -Command "Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))"
-      echo Configuración de Chocolatey completada. Instalando Node.js LTS...
-      choco install nodejs-lts --version=20.15.1 -y
-    `, (error, stdout, stderr) => {
+            echo Node.js no está instalado. Instalando...
+            powershell -Command "Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))"
+            echo Configuración de Chocolatey completada. Instalando Node.js LTS...
+            choco install nodejs-lts --version=20.15.1 -y
+        `, (error, stdout, stderr) => {
             if (error) {
                 console.error('Error instalando Node.js:', error);
             } else {
@@ -63,25 +79,27 @@ function createWindow() {
     ipcMain.on('download-repo', () => {
         console.log('Descargando repositorio...');
 
-        // Obtener la ruta de la carpeta de Documentos
-        const documentsPath = path.join(os.homedir(), 'Documents');
-        const repoUrl = 'https://github.com/usuario/repo.git'; // Reemplaza con la URL del repositorio que deseas clonar
-        const repoName = 'repo'; // Nombre de la carpeta del repositorio
+        const repoUrl = 'https://github.com/DiamondStalker/Automatizacion-Rudy'; // Reemplaza con la URL del repositorio que deseas clonar
         const clonePath = path.join(documentsPath, repoName);
 
-        console.log('Ruta de destino:', clonePath); // Verifica la ruta
+        if (fs.existsSync(clonePath)) {
+            console.log('Repositorio ya existe.');
+            mainWindow.webContents.send('download-status', { status: 'exists', message: 'El repositorio ya está descargado.' });
+        } else {
+            const cloneCommand = `git clone ${repoUrl} "${clonePath}"`;
 
-        const cloneCommand = `git clone ${repoUrl} "${clonePath}"`;
-
-        exec(cloneCommand, (error, stdout, stderr) => {
-            if (error) {
-                console.error('Error descargando el repositorio:', error);
-                mainWindow.webContents.send('download-status', { status: 'error', message: error.message });
-            } else {
-                console.log('Repositorio descargado correctamente:', stdout);
-                mainWindow.webContents.send('download-status', { status: 'success', message: 'Repositorio descargado correctamente.' });
-            }
-        });
+            exec(cloneCommand, (error, stdout, stderr) => {
+                if (error) {
+                    console.error('Error descargando el repositorio:', error);
+                    mainWindow.webContents.send('download-status', { status: 'error', message: error.message });
+                } else {
+                    console.log('Repositorio descargado correctamente:', stdout);
+                    mainWindow.webContents.send('download-status', { status: 'success', message: 'Repositorio descargado correctamente.' });
+                    // Actualiza el estado del repositorio después de la descarga
+                    mainWindow.webContents.send('repo-status', { status: 'exists' });
+                }
+            });
+        }
     });
 
     // Escuchar el evento de cierre de la aplicación

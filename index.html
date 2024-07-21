@@ -21,21 +21,23 @@
         /* Contenedor principal */
         .container {
             width: 100%;
-            max-width: 800px;
+            max-width: 420px; /* Ajusta el ancho según sea necesario */
             padding: 20px;
             box-sizing: border-box;
+            position: relative;
         }
 
         /* Estilo de los botones */
         .button {
             border: none;
             padding: 10px 20px;
-            margin: 10px;
+            margin: 10px 0; /* Espacio entre botones */
             cursor: pointer;
             border-radius: 5px;
             color: #fff;
             font-size: 16px;
             transition: background-color 0.3s;
+            width: 100%; /* Hacer que los botones ocupen todo el ancho del contenedor */
         }
 
         .button-primary {
@@ -75,7 +77,7 @@
 
         #download-status {
             font-size: 16px;
-            margin: 10px;
+            margin: 10px 0;
         }
 
         /* Estilo del botón de cerrar */
@@ -104,8 +106,6 @@
         <h2 id="node-status">Verificando Node.js...</h2>
         <button id="install-node" class="button button-primary" disabled>Instalar Node</button>
         <button id="download-repo" class="button button-primary">Descargar Repositorio</button>
-        <button onclick="alert('Botón 2')" class="button button-secondary">Botón 2</button>
-        <button onclick="alert('Botón 3')" class="button button-secondary">Botón 3</button>
         <p id="download-status"></p> <!-- Mensaje de estado de descarga -->
     </div>
 
@@ -121,6 +121,17 @@
                 nodeStatusLabel.textContent = 'Node no está instalado';
                 nodeStatusLabel.className = 'status-not-installed';
                 installButton.disabled = false; // Habilita el botón
+            }
+        });
+
+        window.electron.receiveRepoStatus((event, data) => {
+            const downloadRepoButton = document.getElementById('download-repo');
+            if (data.status === 'exists') {
+                downloadRepoButton.disabled = true;
+                downloadRepoButton.textContent = 'Repositorio ya descargado';
+            } else {
+                downloadRepoButton.disabled = false;
+                downloadRepoButton.textContent = 'Descargar Repositorio';
             }
         });
 
