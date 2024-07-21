@@ -1,16 +1,42 @@
 {
   "name": "app-rudy",
+  "productname": "APP Automatizacion",
   "version": "1.0.0",
-  "description": "",
+  "description": "DiamondStalker ",
   "main": "main.js",
   "scripts": {
-    "start": "electron .",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "electron-forge start",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "pack": "build --dir",
+    "dist": "electron-packager . app --platform win32 --arch x64 --out dist/",
+    "package": "electron-forge package",
+    "make": "electron-forge make"
   },
   "keywords": [],
-  "author": "",
+  "author": "Diamond Stalker",
   "license": "ISC",
   "devDependencies": {
+    "@electron-forge/cli": "^7.4.0",
+    "@electron-forge/maker-deb": "^7.4.0",
+    "@electron-forge/maker-rpm": "^7.4.0",
+    "@electron-forge/maker-squirrel": "^7.4.0",
+    "@electron-forge/maker-zip": "^7.4.0",
+    "@electron-forge/plugin-auto-unpack-natives": "^7.4.0",
+    "@electron-forge/plugin-fuses": "^7.4.0",
+    "@electron/fuses": "^1.8.0",
     "electron": "^31.2.1"
+  },
+  "build": {
+    "appId": "com.electron.app",
+    "win": {
+      "target": "execute"
+    },
+    "portable": {
+      "unicode": false,
+      "artifactName": "my_electron_app.exe"
+    }
+  },
+  "dependencies": {
+    "electron-squirrel-startup": "^1.0.1"
   }
 }
