@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <title>Ejecutador Automatizacion</title>
+    <title>Mi Aplicación Electron</title>
     <style>
         /* Estilos generales */
         body {
@@ -48,17 +48,17 @@
             background-color: #0056b3;
         }
 
-        .button-primary:disabled {
+        .button-disabled {
             background-color: #6c757d;
             cursor: not-allowed;
         }
 
         .button-secondary {
-            background-color: #6c757d;
+            background-color: #007bff;
         }
 
         .button-secondary:hover {
-            background-color: #5a6268;
+            background-color: #0056b3;
         }
 
         #node-status {
@@ -97,6 +97,20 @@
         #close-app:hover {
             background: #c82333;
         }
+
+        /* Estilo del área de salida del comando */
+        #command-output {
+            margin-top: 20px;
+            width: 100%;
+            height: 200px; /* Ajusta la altura según sea necesario */
+            border: 1px solid #ccc;
+            background-color: #fff;
+            overflow-y: auto;
+            text-align: left;
+            white-space: pre-wrap;
+            font-family: monospace;
+            padding: 10px;
+        }
     </style>
 </head>
 
@@ -104,8 +118,11 @@
     <button id="close-app">✖</button>
     <div class="container">
         <h2 id="node-status">Verificando Node.js...</h2>
-        <button id="install-node" class="button button-primary" disabled>Instalar Node</button>
+        <button id="install-node" class="button button-primary button-disabled" disabled>Instalar Node</button>
         <button id="download-repo" class="button button-primary">Descargar Repositorio</button>
+        <button id="check-node-modules" class="button button-secondary">Verificar node_modules</button>
+        <p id="download-status"></p> <!-- Mensaje de estado de descarga -->
+        <pre id="command-output"></pre> <!-- Área de salida de comandos -->
     </div>
 
     <script>
@@ -115,35 +132,31 @@
             if (data.status === 'installed') {
                 nodeStatusLabel.textContent = `Node está instalado (Versión: ${data.version})`;
                 nodeStatusLabel.className = 'status-installed';
-                installButton.disabled = true; // Bloquea el botón
+                installButton.textContent = 'Node está instalado';
+                installButton.disabled = true;
+                installButton.classList.add('button-disabled'); // Añadir clase de botón deshabilitado
+                installButton.classList.remove('button-primary'); // Quitar clase de botón primario
             } else {
-                nodeStatusLabel.textContent = 'Node no está instalado';
                 nodeStatusLabel.className = 'status-not-installed';
-                installButton.disabled = false; // Habilita el botón
+                installButton.disabled = false;
+                installButton.classList.remove('button-disabled'); // Quitar clase de botón deshabilitado
+                installButton.classList.add('button-primary'); // Añadir clase de botón primario
             }
         });
 
         window.electron.receiveRepoStatus((event, data) => {
             const downloadRepoButton = document.getElementById('download-repo');
             if (data.status === 'exists') {
-                downloadRepoButton.disabled = true;
-                downloadRepoButton.textContent = 'Repositorio ya descargado';
+                downloadRepoButton.disabled = true; // Bloquea el botón si el repositorio ya existe
+                downloadRepoButton.textContent = "Repositorio Descargado"
+                downloadRepoButton.classList.add('button-disabled'); // Añadir clase de botón deshabilitado
+                downloadRepoButton.classList.remove('button-primary'); // Quitar clase de botón primario
             } else {
                 downloadRepoButton.disabled = false;
                 downloadRepoButton.textContent = 'Descargar Repositorio';
+                downloadRepoButton.classList.remove('button-disabled'); // Quitar clase de botón deshabilitado
+                downloadRepoButton.classList.add('button-primary'); // Añadir clase de botón primario
             }
-        });
-
-        document.getElementById('install-node').addEventListener('click', () => {
-            window.electron.installNode();
-        });
-
-        document.getElementById('download-repo').addEventListener('click', () => {
-            window.electron.downloadRepo();
-        });
-
-        document.getElementById('close-app').addEventListener('click', () => {
-            window.electron.closeApp();
         });
 
         window.electron.receiveDownloadStatus((event, data) => {
@@ -157,6 +170,27 @@
             } else if (data.status === 'progress') {
                 downloadStatus.textContent = data.message;
             }
+        });
+
+        window.electron.receiveCommandOutput((event, data) => {
+            const commandOutput = document.getElementById('command-output');
+            commandOutput.textContent += data.output;
+        });
+
+        document.getElementById('install-node').addEventListener('click', () => {
+            window.electron.installNode();
+        });
+
+        document.getElementById('download-repo').addEventListener('click', () => {
+            window.electron.downloadRepo();
+        });
+
+        document.getElementById('check-node-modules').addEventListener('click', () => {
+            window.electron.checkNodeModules();
+        });
+
+        document.getElementById('close-app').addEventListener('click', () => {
+            window.electron.closeApp();
         });
     </script>
 </body>
