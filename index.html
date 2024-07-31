@@ -59,17 +59,20 @@
 
         window.electron.receiveRepoStatus((event, data) => {
             const downloadRepoButton = document.getElementById('download-repo');
+            const updateRepoButton = document.getElementById('dupdate-repo');
             if (data.status === 'exists') {
-                downloadRepoButton.classList.add('hidden');
                 downloadRepoButton.disabled = true; // Bloquea el botón si el repositorio ya existe
                 downloadRepoButton.textContent = "Repositorio Descargado"
                 downloadRepoButton.classList.add('button-disabled'); // Añadir clase de botón deshabilitado
                 downloadRepoButton.classList.remove('button-primary'); // Quitar clase de botón primario
+                downloadRepoButton.classList.add('hidden'); // Quitar clase de botón primario
+                updateRepoButton.classList.remove('hidden'); // Quitar clase de botón primario
             } else {
                 downloadRepoButton.disabled = false;
                 downloadRepoButton.textContent = 'Descargar Repositorio';
                 downloadRepoButton.classList.remove('button-disabled'); // Quitar clase de botón deshabilitado
-                downloadRepoButton.classList.add('button-primary'); // Añadir clase de botón primario
+                downloadRepoButton.classList.add('button-primary'); // Añadir clase de botón primario // Quitar clase de botón primario
+                updateRepoButton.classList.add('hidden'); 
             }
         });
 
