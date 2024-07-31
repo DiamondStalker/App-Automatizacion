@@ -3,119 +3,7 @@
 
 <head>
     <title>App Automatizacion</title>
-    <style>
-        /* Estilos generales */
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            background-color: #f0f0f0;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-        }
-
-        /* Contenedor principal */
-        .container {
-            width: 100%;
-            max-width: 420px;
-            /* Ajusta el ancho según sea necesario */
-            padding: 20px;
-            box-sizing: border-box;
-            position: relative;
-        }
-
-        /* Estilo de los botones */
-        .button {
-            border: none;
-            padding: 10px 20px;
-            margin: 10px 0;
-            /* Espacio entre botones */
-            cursor: pointer;
-            border-radius: 5px;
-            color: #fff;
-            font-size: 16px;
-            transition: background-color 0.3s;
-            width: 100%;
-            /* Hacer que los botones ocupen todo el ancho del contenedor */
-        }
-
-        .button-primary {
-            background-color: #007bff;
-        }
-
-        .button-primary:hover {
-            background-color: #0056b3;
-        }
-
-        .button-disabled {
-            background-color: #6c757d;
-            cursor: not-allowed;
-        }
-
-        .button-secondary {
-            background-color: #007bff;
-        }
-
-        .button-secondary:hover {
-            background-color: #0056b3;
-        }
-
-        #node-status {
-            font-size: 18px;
-            margin: 20px 0;
-            font-weight: bold;
-        }
-
-        .status-installed {
-            color: green;
-        }
-
-        .status-not-installed {
-            color: red;
-        }
-
-        #download-status {
-            font-size: 16px;
-            margin: 10px 0;
-        }
-
-        /* Estilo del botón de cerrar */
-        #close-app {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            border: none;
-            background: #dc3545;
-            color: #fff;
-            padding: 10px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 18px;
-        }
-
-        #close-app:hover {
-            background: #c82333;
-        }
-
-        /* Estilo del área de salida del comando */
-        #command-output {
-            margin-top: 20px;
-            width: 100%;
-            height: 200px;
-            /* Ajusta la altura según sea necesario */
-            border: 1px solid #ccc;
-            background-color: #fff;
-            overflow-y: auto;
-            text-align: left;
-            white-space: pre-wrap;
-            font-family: monospace;
-            padding: 10px;
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
@@ -128,6 +16,10 @@
         <button id="open-excel" class="button button-primary">Abrir Archivo Excel</button> <!-- Nuevo botón -->
         <button id="check-node-modules" class="button button-primary">Verificar node_modules</button>
         <button id="stop-process" class="button button-disabled" disabled>Detener Proceso</button>
+
+        <button id="update-repo" class="button button-update-repo">Actualizar Repositorio</button>
+        <button id="check-updates">Buscar Actualizaciones</button>
+
         <p id="download-status"></p> <!-- Mensaje de estado de descarga -->
         <pre id="command-output"></pre> <!-- Área de salida de comandos -->
     </div>
@@ -145,6 +37,7 @@
                 installGitButton.disabled = false;
             }
         });
+
         window.electron.receiveNodeStatus((event, data) => {
             const nodeStatusLabel = document.getElementById('node-status');
             const installButton = document.getElementById('install-node');
@@ -167,6 +60,7 @@
         window.electron.receiveRepoStatus((event, data) => {
             const downloadRepoButton = document.getElementById('download-repo');
             if (data.status === 'exists') {
+                downloadRepoButton.classList.add('hidden');
                 downloadRepoButton.disabled = true; // Bloquea el botón si el repositorio ya existe
                 downloadRepoButton.textContent = "Repositorio Descargado"
                 downloadRepoButton.classList.add('button-disabled'); // Añadir clase de botón deshabilitado
@@ -208,7 +102,7 @@
 
                 stop.classList.remove('button-disabled'); // Quitar clase de botón deshabilitado
                 stop.classList.add('button-primary');
-            }else{
+            } else {
 
                 stop.disabled = true;
                 execute.disabled = false;
@@ -225,6 +119,14 @@
         window.electron.receiveCommandOutput((event, data) => {
             const commandOutput = document.getElementById('command-output');
             commandOutput.textContent += data.output;
+        });
+
+        document.getElementById('check-updates').addEventListener('click', () => {
+            ipcRenderer.send('check-for-updates');
+        });
+
+        document.getElementById('update-repo').addEventListener('click', () => {
+            window.electron.updateRepo();
         });
 
         document.getElementById('install-node').addEventListener('click', () => {
@@ -255,6 +157,20 @@
             const outputArea = document.getElementById('output-area');
             outputArea.textContent += data.output + '\n';
         });
+
+        window.electron.receiveRepoStatus((event, data) => {
+            const updateRepoButton = document.getElementById('update-repo');
+            if (data.status === 'update-available') {
+                updateRepoButton.style.display = 'block'; // Muestra el botón si hay actualizaciones
+                updateRepoButton.textContent = 'Actualizar Repositorio';
+                updateRepoButton.classList.remove('button-disabled'); // Asegúrate de que el botón no esté deshabilitado
+            } else if (data.status === 'no-update') {
+                updateRepoButton.style.display = 'none'; // Oculta el botón si no hay actualizaciones
+            } else {
+                updateRepoButton.style.display = 'none'; // Oculta el botón en caso de error
+            }
+        });
+
     </script>
 </body>
 

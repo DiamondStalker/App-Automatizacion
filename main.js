@@ -1,4 +1,5 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
+const { autoUpdater } = require('electron-updater');
 const { spawn } = require('child_process');
 const path = require('path');
 const exec = require('child_process').exec;
@@ -260,9 +261,41 @@ function createWindow() {
             mainWindow.webContents.send('command-output', { output: 'El archivo Excel no existe en la ruta especificada.' });
         }
     });
+
+    ipcMain.on('update-repo', () => {
+        sendOutput('Actualizando Repositorio \n');
+        const pullCommand = `git -C "${repoPath}" pull`;
+        exec(pullCommand, (error, stdout, stderr) => {
+            sendOutput(stdout);
+            if (error) {
+                sendOutput('Error actualizando el repositorio:', error);
+                mainWindow.webContents.send('repo-status', { status: 'error', message: error.message });
+            } else {
+                sendOutput('Repositorio actualizado correctamente:', stdout);
+                mainWindow.webContents.send('repo-status', { status: 'updated', message: 'Repositorio actualizado correctamente.' });
+            }
+        });
+    });
 }
 
+autoUpdater.on('update-available', () => {
+    mainWindow.webContents.send('command-output', { output: 'Actualización disponible. Descargando...' });
+});
+
+autoUpdater.on('update-downloaded', () => {
+    mainWindow.webContents.send('command-output', { output: 'Actualización descargada. Reiniciando para instalar...' });
+    autoUpdater.quitAndInstall();
+});
+
+autoUpdater.on('error', (error) => {
+    mainWindow.webContents.send('command-output', { output: `Error en la actualización: ${error.message}` });
+});
+
 app.on('ready', createWindow);
+// app.on('ready', () => {
+//     createWindow();
+//     autoUpdater.checkForUpdatesAndNotify();
+// });
 
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {

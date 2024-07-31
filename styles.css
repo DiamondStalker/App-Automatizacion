@@ -1,0 +1,148 @@
+/* Estilos generales */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    background-color: #f0f0f0;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+/* Diseno del status del Node*/
+.status-installed {
+    color: green;
+}
+
+.status-not-installed {
+    color: red;
+}
+
+#download-status {
+    font-size: 16px;
+    margin: 10px 0;
+}
+
+/* Contenedor principal */
+.container {
+    width: 100%;
+    max-width: 420px;
+    /* Ajusta el ancho según sea necesario */
+    padding: 20px;
+    box-sizing: border-box;
+    position: relative;
+    /* Añadir margen inferior para el botón de actualización */
+    margin-bottom: 50px;
+    /* Ajusta según el espacio que quieras para el botón */
+}
+
+/* Estilo de los botones */
+.button {
+    border: none;
+    padding: 10px 20px;
+    margin: 10px 0;
+    /* Espacio entre botones */
+    cursor: pointer;
+    border-radius: 5px;
+    color: #fff;
+    font-size: 16px;
+    transition: background-color 0.3s;
+    width: 100%;
+    /* Hacer que los botones ocupen todo el ancho del contenedor */
+}
+
+/* Estilo específico para el botón de actualizar repositorio */
+.button-update-repo {
+    background-color: #28a745;
+    /* Color verde */
+    padding: 8px 16px;
+    /* Hacer el botón más pequeño */
+    font-size: 14px;
+    /* Reducir el tamaño del texto */
+}
+
+.button-update-repo:hover {
+    background-color: #218838;
+    /* Color verde más oscuro al pasar el ratón */
+}
+
+.button-disabled {
+    background-color: #6c757d;
+    cursor: not-allowed;
+}
+
+.button-primary {
+    background-color: #007bff;
+}
+
+.button-primary:hover {
+    background-color: #0056b3;
+}
+
+/* Estilo del botón de cerrar */
+#close-app {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    border: none;
+    background: #dc3545;
+    color: #fff;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 18px;
+}
+
+#close-app:hover {
+    background: #c82333;
+}
+
+/* Estilo del área de salida del comando */
+#command-output {
+    margin-top: 20px;
+    width: 100%;
+    height: 200px;
+    /* Ajusta la altura según sea necesario */
+    border: 1px solid #ccc;
+    background-color: #fff;
+    overflow-y: auto;
+    text-align: left;
+    white-space: pre-wrap;
+    font-family: monospace;
+    padding: 10px;
+}
+
+/* Botón de actualización en la esquina inferior derecha */
+#update-repo {
+    position: fixed;
+    bottom: 20px;
+    /* Ajusta la distancia desde el fondo de la ventana */
+    right: 20px;
+    /* Ajusta la distancia desde el lado derecho de la ventana */
+    /* Ajusta el ancho del botón si es necesario */
+    width: auto;
+    background-color: #28a745;
+    /* Color verde */
+    color: #fff;
+    padding: 8px 16px;
+    /* Hacer el botón más pequeño */
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    /* Reducir el tamaño del texto */
+    transition: background-color 0.3s;
+}
+
+#update-repo:hover {
+    background-color: #218838;
+    /* Color verde más oscuro al pasar el ratón */
+}
+
+/* Clase para ocultar el botón */
+.hidden {
+    display: none;
+}

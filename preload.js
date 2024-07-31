@@ -15,5 +15,6 @@ contextBridge.exposeInMainWorld('electron', {
     checkNodeModules: () => ipcRenderer.send('check-node-modules'),
     stopProcess: () => ipcRenderer.send('stop-process'),
     openExcel: () => ipcRenderer.send('open-excel'),
-    closeApp: () => ipcRenderer.send('close-app')
+    closeApp: () => ipcRenderer.send('close-app'),
+    updateRepo: () => ipcRenderer.send('update-repo')
 });
