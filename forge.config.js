@@ -4,6 +4,7 @@ const { FuseV1Options, FuseVersion } = require('@electron/fuses');
 module.exports = {
   packagerConfig: {
     asar: true,
+    icon:'/assets/icon'
   },
   rebuildConfig: {},
   makers: [
@@ -16,8 +17,19 @@ module.exports = {
       platforms: ['darwin'],
     },
     {
+      // Path to the icon to use for the app in the DMG window
+      name: '@electron-forge/maker-dmg',
+      config: {
+        icon: '/assets/icon.ico'
+      }
+    },
+    {
       name: '@electron-forge/maker-deb',
-      config: {},
+      config: {
+        opntions:{
+          icon:'/assets/icon.ico'
+        }
+      },
     },
     {
       name: '@electron-forge/maker-rpm',

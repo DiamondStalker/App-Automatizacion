@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <title>Mi Aplicación Electron</title>
+    <title>App Automatizacion</title>
     <style>
         /* Estilos generales */
         body {
@@ -21,7 +21,8 @@
         /* Contenedor principal */
         .container {
             width: 100%;
-            max-width: 420px; /* Ajusta el ancho según sea necesario */
+            max-width: 420px;
+            /* Ajusta el ancho según sea necesario */
             padding: 20px;
             box-sizing: border-box;
             position: relative;
@@ -31,13 +32,15 @@
         .button {
             border: none;
             padding: 10px 20px;
-            margin: 10px 0; /* Espacio entre botones */
+            margin: 10px 0;
+            /* Espacio entre botones */
             cursor: pointer;
             border-radius: 5px;
             color: #fff;
             font-size: 16px;
             transition: background-color 0.3s;
-            width: 100%; /* Hacer que los botones ocupen todo el ancho del contenedor */
+            width: 100%;
+            /* Hacer que los botones ocupen todo el ancho del contenedor */
         }
 
         .button-primary {
@@ -102,7 +105,8 @@
         #command-output {
             margin-top: 20px;
             width: 100%;
-            height: 200px; /* Ajusta la altura según sea necesario */
+            height: 200px;
+            /* Ajusta la altura según sea necesario */
             border: 1px solid #ccc;
             background-color: #fff;
             overflow-y: auto;
@@ -118,14 +122,29 @@
     <button id="close-app">✖</button>
     <div class="container">
         <h2 id="node-status">Verificando Node.js...</h2>
+        <button id="install-git" class="button button-primary">Descargar Git</button>
         <button id="install-node" class="button button-primary button-disabled" disabled>Instalar Node</button>
         <button id="download-repo" class="button button-primary">Descargar Repositorio</button>
+        <button id="open-excel" class="button button-primary">Abrir Archivo Excel</button> <!-- Nuevo botón -->
         <button id="check-node-modules" class="button button-secondary">Verificar node_modules</button>
+        <button id="stop-process" class="button button-secondary">Detener Proceso</button>
         <p id="download-status"></p> <!-- Mensaje de estado de descarga -->
         <pre id="command-output"></pre> <!-- Área de salida de comandos -->
     </div>
 
     <script>
+
+        window.electron.receiveGitStatus((event, data) => {
+            const installGitButton = document.getElementById('install-git');
+            if (data.status === 'installed') {
+                installGitButton.textContent = 'Git está instalados';
+                installGitButton.classList.add('button-disabled'); // Añadir clase de botón deshabilitado
+                installGitButton.classList.remove('button-primary');
+                installGitButton.disabled = true;
+            } else {
+                installGitButton.disabled = false;
+            }
+        });
         window.electron.receiveNodeStatus((event, data) => {
             const nodeStatusLabel = document.getElementById('node-status');
             const installButton = document.getElementById('install-node');
@@ -143,6 +162,7 @@
                 installButton.classList.add('button-primary'); // Añadir clase de botón primario
             }
         });
+
 
         window.electron.receiveRepoStatus((event, data) => {
             const downloadRepoButton = document.getElementById('download-repo');
@@ -191,6 +211,19 @@
 
         document.getElementById('close-app').addEventListener('click', () => {
             window.electron.closeApp();
+        });
+
+        document.getElementById('open-excel').addEventListener('click', () => {
+            window.electron.openExcel();
+        });
+
+        document.getElementById('stop-process').addEventListener('click', () => {
+            window.electron.stopProcess();
+        });
+
+        window.electron.receiveOutput((event, data) => {
+            const outputArea = document.getElementById('output-area');
+            outputArea.textContent += data.output + '\n';
         });
     </script>
 </body>
