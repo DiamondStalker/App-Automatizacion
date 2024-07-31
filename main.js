@@ -184,6 +184,8 @@ function createWindow() {
     // });
 
     ipcMain.on('check-node-modules', () => {
+        mainWindow.webContents.send('execute-status', { status: 'exec' });
+
         childProcess = exec(`cd ${repoPath} && npm i && npm run start`, (error, stdout, stderr) => {
             if (error) {
                 sendOutput(`Error ejecutando el comando: ${error}`);
@@ -205,6 +207,8 @@ function createWindow() {
     });
 
     ipcMain.on('stop-process', () => {
+        //mainWindow.webContents.send('execute-status', { status: 'no-exec' });
+
         if (childProcess) {
             kill(childProcess.pid, 'SIGKILL', (err) => {
                 if (err) {

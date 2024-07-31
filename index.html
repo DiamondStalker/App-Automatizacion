@@ -122,12 +122,12 @@
     <button id="close-app">✖</button>
     <div class="container">
         <h2 id="node-status">Verificando Node.js...</h2>
-        <button id="install-git" class="button button-primary">Descargar Git</button>
+        <button id="install-git" class="button button-primary button-disabled">Descargar Git</button>
         <button id="install-node" class="button button-primary button-disabled" disabled>Instalar Node</button>
         <button id="download-repo" class="button button-primary">Descargar Repositorio</button>
         <button id="open-excel" class="button button-primary">Abrir Archivo Excel</button> <!-- Nuevo botón -->
-        <button id="check-node-modules" class="button button-secondary">Verificar node_modules</button>
-        <button id="stop-process" class="button button-secondary">Detener Proceso</button>
+        <button id="check-node-modules" class="button button-primary">Verificar node_modules</button>
+        <button id="stop-process" class="button button-disabled" disabled>Detener Proceso</button>
         <p id="download-status"></p> <!-- Mensaje de estado de descarga -->
         <pre id="command-output"></pre> <!-- Área de salida de comandos -->
     </div>
@@ -190,6 +190,36 @@
             } else if (data.status === 'progress') {
                 downloadStatus.textContent = data.message;
             }
+        });
+
+        window.electron.statusExecute((event, data) => {
+            const execute = document.getElementById('check-node-modules');
+            const stop = document.getElementById('stop-process');
+
+            stop.disabled = true;
+
+            if (data.status == 'exec') {
+
+                execute.disabled = true;
+                stop.disabled = false;
+
+                execute.classList.add('button-disabled'); // Quitar clase de botón deshabilitado
+                execute.classList.remove('button-primary');
+
+                stop.classList.remove('button-disabled'); // Quitar clase de botón deshabilitado
+                stop.classList.add('button-primary');
+            }else{
+
+                stop.disabled = true;
+                execute.disabled = false;
+
+                execute.classList.remove('button-disabled'); // Quitar clase de botón deshabilitado
+                execute.classList.add('button-primary');
+
+                stop.classList.add('button-disabled'); // Quitar clase de botón deshabilitado
+                stop.classList.remove('button-primary');
+            }
+
         });
 
         window.electron.receiveCommandOutput((event, data) => {
